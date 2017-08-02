@@ -1,0 +1,5 @@
+classes= 15
+train  = /workspace/darknet/data/aic1080_train.txt
+valid  = /workspace/darknet/data/aic1080_val.txt
+names = data/aic1080.names
+backup = /workspace/darknet/backup

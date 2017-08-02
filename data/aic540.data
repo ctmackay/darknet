@@ -1,0 +1,6 @@
+classes= 15
+train  = /workspace/darknet/data/aic540_train.txt
+valid  = /workspace/darknet/data/aic540_val.txt
+names = data/aic540.names
+backup = /workspace/darknet/backup
+
