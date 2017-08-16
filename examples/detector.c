@@ -577,7 +577,6 @@ void validate_detector_recall(char *cfgfile, char *weightfile, char *test_list)
 }
 
 void write_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes, char *save_name) {
-    int cook_the_books = 1;
     int i, j;
     FILE *f_img;
     f_img = fopen(save_name, "w");
@@ -611,14 +610,12 @@ void write_detections(image im, int num, float thresh, box *boxes, float **probs
             if (top > im.h - 1) top = im.h - 1;
 
 
-            if (cook_the_books) {
-                for (j = 0; j < classes; j++) {
-                    class = j;
-                    prob = probs[i][class];
+            for (j = 0; j < classes; j++) {
+                class = j;
+                prob = probs[i][class];
 
-                    fprintf(f_img, "%s %d %d %d %d %f\n", names[class], left, bot, right, top, prob);
-                    // fprintf(f_img, "%d %f %f %f %f %f\n", class, x_min, y_min, x_max, y_max, prob);
-                }
+                fprintf(f_img, "%s %d %d %d %d %f\n", names[class], left, bot, right, top, prob);
+                // fprintf(f_img, "%d %f %f %f %f %f\n", class, x_min, y_min, x_max, y_max, prob);
             }
 
         }
