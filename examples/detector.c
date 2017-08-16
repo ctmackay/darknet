@@ -576,42 +576,55 @@ void validate_detector_recall(char *cfgfile, char *weightfile, char *test_list)
     }
 }
 
-void write_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes, char *save_name)
-{
-        int i;
-        FILE *f_img;
-        f_img = fopen(save_name, "w");
-    
-        for(i = 0; i < num; ++i){
-                int class = max_index(probs[i], classes);
-                float prob = probs[i][class];
-                //write the class only if its prob is greater than zero
-                if(prob){
-                        box b = boxes[i];
-           
-//			float x_min = b.x - b.w/2.;
-//			float y_min = b.y - b.h/2.;
-//			float x_max = b.x + b.w/2.;
-//			float y_max = b.y + b.h/2.;
- 
-                        int left  = (b.x-b.w/2.)*im.w;
-                        int right = (b.x+b.w/2.)*im.w;
-                        int top   = (b.y+b.h/2.)*im.h;
-                        int bot   = (b.y-b.h/2.)*im.h;
-            
-//			if (x_min < 0) x_min = 0;
-//			if (y_min < 0) y_min = 0;
-//			if (y_max > b.w) x_max = b.w;
-//			if (y_max > b.h) y_max = b.h;
-                        if(left < 0) left = 0;
-                        if(right > im.w-1) right = im.w-1;
-                        if(bot < 0) bot = 0;
-                        if(top > im.h-1) top = im.h-1;
-                        fprintf(f_img, "%s %d %d %d %d %f\n", names[class], left, bot, right, top, prob);
-                       // fprintf(f_img, "%d %f %f %f %f %f\n", class, x_min, y_min, x_max, y_max, prob);
-                    }
+void write_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes, char *save_name) {
+    int cook_the_books = 1;
+    int i, j;
+    FILE *f_img;
+    f_img = fopen(save_name, "w");
+
+    for (i = 0; i < num; ++i) {
+
+        int class = max_index(probs[i], classes);
+        float prob = probs[i][class];
+
+        //write the class only if its prob is greater than zero
+        if (prob) {
+            box b = boxes[i];
+
+            //			float x_min = b.x - b.w/2.;
+            //			float y_min = b.y - b.h/2.;
+            //			float x_max = b.x + b.w/2.;
+            //			float y_max = b.y + b.h/2.;
+
+            int left = (b.x - b.w / 2.) * im.w;
+            int right = (b.x + b.w / 2.) * im.w;
+            int top = (b.y + b.h / 2.) * im.h;
+            int bot = (b.y - b.h / 2.) * im.h;
+
+            //			if (x_min < 0) x_min = 0;
+            //			if (y_min < 0) y_min = 0;
+            //			if (y_max > b.w) x_max = b.w;
+            //			if (y_max > b.h) y_max = b.h;
+            if (left < 0) left = 0;
+            if (right > im.w - 1) right = im.w - 1;
+            if (bot < 0) bot = 0;
+            if (top > im.h - 1) top = im.h - 1;
+
+
+            if (cook_the_books) {
+                for (j = 0; j < classes; j++) {
+                    class = j;
+                    prob = probs[i][class];
+
+                    fprintf(f_img, "%s %d %d %d %d %f\n", names[class], left, bot, right, top, prob);
+                    // fprintf(f_img, "%d %f %f %f %f %f\n", class, x_min, y_min, x_max, y_max, prob);
+                }
             }
-        fclose(f_img);
+
+        }
+
+    }
+    fclose(f_img);
 }
 
 void test_detector_file(char *datacfg, char *cfgfile, char *weightfile, char *filelistname, float thresh, float hier_thresh, char *outfile, int fullscreen)
@@ -703,11 +716,12 @@ void test_detector_file(char *datacfg, char *cfgfile, char *weightfile, char *fi
             imgName += dir_len;
             //concatenate and give to save_image
             strcat(saveName, imgName);
-                        printf("saving as: %s \n", saveName);
+            printf("saving as: %s \n", saveName);
             save_image(im, saveName);
-                        //write detections to txt file
-                        strcat(saveName, ".txt");
-                        write_detections(im, l.w*l.h*l.n, thresh, boxes, probs, names, alphabet, l.classes, saveName);
+            //write detections to txt file
+            strcat(saveName, ".txt");
+          //write_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes, char *save_name)
+            write_detections(im, l.w * l.h * l.n, thresh, boxes, probs, names, alphabet, l.classes, saveName);
         }
         else{
             save_image(im, "predictions");
